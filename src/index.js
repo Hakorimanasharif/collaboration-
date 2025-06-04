@@ -13,12 +13,14 @@ const MongoStore = require('connect-mongo');
 const templatePath = path.join(__dirname, '../templates');
 
 // Session configuration
+const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://hakorimanasharif12:nQwgHHW7obwZ92N4@cluster0.we3s9v8.mongodb.net/test';
+
 app.use(session({
     secret: 'your-secret-key',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-        mongoUrl: 'mongodb://localhost:27017/yourdbname',
+        mongoUrl: mongoUri,
         ttl: 14 * 24 * 60 * 60 // = 14 days
     }),
     cookie: { maxAge: 1000 * 60 * 60 * 24 } // 24 hours
