@@ -234,6 +234,12 @@ app.get('/chat', requireAuth, async (req, res) => {
         const users = await collection.find({ 
             name: { $ne: req.session.user.name } 
         }).sort({ lastSeen: -1 });
+
+        // Fetch recent chat messages
+        const messages = await Message.find({})
+            .sort({ timestamp: 1 })
+            .limit(100)
+            .lean();
         
         // Mark users as online if they are in connectedUsers
         const onlineUsernames = new Set(Array.from(connectedUsers.values()));
@@ -247,7 +253,8 @@ app.get('/chat', requireAuth, async (req, res) => {
             })),
             allUsers: users.map(user => ({
                 name: user.name
-            }))
+            })),
+            messages
         });
     } catch (error) {
         console.error('Chat error:', error);

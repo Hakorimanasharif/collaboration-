@@ -469,3 +469,17 @@ function formatFileSize(bytes) {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
+
+// Fetch chat history from server and render messages
+async function fetchChatHistory() {
+    try {
+        const response = await fetch('/api/chat/messages');
+        if (!response.ok) {
+            throw new Error('Failed to fetch chat history');
+        }
+        const messages = await response.json();
+        messages.forEach(msg => addMessage(msg));
+    } catch (error) {
+        console.error('Error fetching chat history:', error);
+    }
+}
