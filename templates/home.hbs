@@ -1,195 +1,973 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Kegelson</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CollabHub - The ultimate collaboration platform for teams. Real-time chat, video calls, project management, and more.">
+    <meta name="keywords" content="collaboration, team communication, project management, video conferencing, real-time chat">
+    <meta name="author" content="CollabHub Team">
+    <title>CollabHub - Your Ultimate Collaboration Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        :root {
+            --primary: #ff073a;
+            --primary-dark: #cc052e;
+            --secondary: #1c2526;
+            --dark: #0a1012;
+            --light-dark: #2a3439;
+            --text: #e0e6e6;
+            --text-secondary: rgba(224, 230, 230, 0.7);
+            --background: linear-gradient(135deg, #0a1012 0%, #1c2526 100%);
+            --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --shadow: 0 0 15px rgba(255, 7, 58, 0.5), 0 0 5px rgba(255, 7, 58, 0.3);
+            --neon-glow: 0 0 10px rgba(255, 7, 58, 0.8);
+            --server-icon: #3a4750;
+            --channel-bg: #1c2526;
+            --message-bg: #2a3439;
+            --input-bg: #1c2526;
+            --success: #28a745;
+            --warning: #ffc107;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #1F2937;
+            font-family: 'Montserrat', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        /* Navigation */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--dark);
+            box-shadow: var(--shadow);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .navbar.scrolled {
+            background-color: rgba(10, 16, 18, 0.95);
+            backdrop-filter: blur(5px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            color: var(--primary);
+            font-size: 2rem;
+            transition: var(--transition);
+        }
+
+        .logo:hover .logo-icon {
+            transform: rotate(360deg);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            outline: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            box-shadow: var(--neon-glow);
+            animation: pulse 1s infinite;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--text);
+            border: 1px solid var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text);
+            color: var(--text);
+            box-shadow: var(--neon-glow);
+        }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            min-height: 100vh;
+            padding: 8rem 2rem 4rem;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, var(--text), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            animation: fadeInUp 1s ease-out 0.2s forwards;
+            opacity: 0;
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            animation: fadeInUp 1s ease-out 0.4s forwards;
+            opacity: 0;
+        }
+
+        .hero-btns .btn {
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            background-image: url('https://www.transparenttextures.com/patterns/dark-geometric.png');
+            z-index: 0;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 2rem;
+            background-color: var(--secondary);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 2.8rem;
+            color: var(--text);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background-color: var(--dark);
+            border-radius: 8px;
+            padding: 2rem;
+            transition: var(--transition);
+            border: 1px solid var(--light-dark);
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .feature-card:nth-child(2) { animation-delay: 0.1s; }
+        .feature-card:nth-child(3) { animation-delay: 0.2s; }
+        .feature-card:nth-child(4) { animation-delay: 0.3s; }
+        .feature-card:nth-child(5) { animation-delay: 0.4s; }
+        .feature-card:nth-child(6) { animation-delay: 0.5s; }
+        .feature-card:nth-child(7) { animation-delay: 0.6s; }
+        .feature-card:nth-child(8) { animation-delay: 0.7s; }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .feature-desc {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Testimonials Section */
+        .testimonials {
+            padding: 6rem 2rem;
+            background-color: var(--dark);
+            text-align: center;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .testimonial-card {
+            background-color: var(--light-dark);
+            border-radius: 8px;
+            padding: 2rem;
+            position: relative;
+            border: 1px solid var(--primary);
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .testimonial-card:nth-child(2) { animation-delay: 0.1s; }
+        .testimonial-card:nth-child(3) { animation-delay: 0.2s; }
+
+        .testimonial-quote {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .testimonial-author {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .testimonial-role {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Pricing Section */
+        .pricing {
+            padding: 6rem 2rem;
+            background-color: var(--secondary);
+            text-align: center;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background-color: var(--dark);
+            border-radius: 8px;
+            padding: 2rem;
+            border: 1px solid var(--light-dark);
+            transition: var(--transition);
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .pricing-card:nth-child(2) { animation-delay: 0.1s; }
+        .pricing-card:nth-child(3) { animation-delay: 0.2s; }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+        }
+
+        .pricing-title {
+            font-size: 1.8rem;
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+
+        .pricing-price {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .pricing-features li {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pricing-features i {
+            color: var(--success);
+        }
+
+        /* Demo Section */
+        .demo {
+            padding: 6rem 2rem;
+            background-color: var(--dark);
+            text-align: center;
+        }
+
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .demo-image {
+            max-width: 800px;
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--primary);
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        /* Integrations Section */
+        .integrations {
+            padding: 6rem 2rem;
+            background-color: var(--secondary);
+            text-align: center;
+        }
+
+        .integrations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .integration-card {
+            background-color: var(--dark);
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .integration-card:nth-child(2) { animation-delay: 0.1s; }
+        .integration-card:nth-child(3) { animation-delay: 0.2s; }
+        .integration-card:nth-child(4) { animation-delay: 0.3s; }
+        .integration-card:nth-child(5) { animation-delay: 0.4s; }
+
+        .integration-card:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow);
+        }
+
+        .integration-logo {
+            max-width: 100px;
+            filter: grayscale(100%);
+            transition: var(--transition);
+        }
+
+        .integration-card:hover .integration-logo {
+            filter: grayscale(0%);
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 6rem 2rem;
+            text-align: center;
+            background-color: var(--secondary);
+        }
+
+        .cta h2 {
+            margin-bottom: 2rem;
+        }
+
+        /* FAQ Section */
+        .faq {
+            padding: 6rem 2rem;
+            background-color: var(--dark);
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            background-color: var(--light-dark);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text);
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .faq-question:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            padding: 0 1.5rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-answer.active {
+            max-height: 200px;
+            padding: 1.5rem;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--dark);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            color: var(--primary);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-icon {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+
+        .social-icon:hover {
+            color: var(--primary);
+            transform: scale(1.2);
+        }
+
+        .copyright {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .features-grid, .testimonials-grid, .pricing-grid, .integrations-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .auth-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .auth-buttons .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .hero-btns {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .features-grid, .testimonials-grid, .pricing-grid, .integrations-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .pricing-price {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
-<body class="text-white">
+<body>
     <!-- Navigation -->
-    <nav class="bg-gray-800 p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="text-2xl font-bold">
-                <span class="text-orange-500">Kegel</span>son
-            </div>
-            <div class="hidden md:flex space-x-6 items-center relative">
-                <a href="#" class="text-orange-400 font-medium">Home</a>
-                <a href="#" class="text-gray-300 hover:text-orange-400">Feeders</a>
-                <a href="#" class="text-gray-300 hover:text-orange-400">Searching</a>
-                <a href="#" class="text-gray-300 hover:text-orange-400">Welcome</a>
-                <a href="#" class="text-gray-300 hover:text-orange-400">Hitch</a>
-                <div class="ml-4 relative">
-                            <button id="profileBtn" class="flex items-center focus:outline-none">
-                                <div class="w-10 h-10 rounded-full bg-orange-600 flex items-center justify-center text-white font-bold cursor-pointer">
-                                    {{name.[0]}}
-                                </div>
-                            </button>
-                    <div id="profileSidebar" class="fixed top-0 right-0 h-full w-64 bg-gray-800 shadow-lg transform translate-x-full transition-transform duration-300 z-50 overflow-y-auto">
-                        <div class="flex justify-between items-center p-4 border-b border-gray-700">
-                            <h3 class="text-white text-lg font-semibold">Profile</h3>
-                            <button id="closeSidebar" class="text-white text-2xl font-bold focus:outline-none">&times;</button>
-                        </div>
-                        <nav class="flex flex-col p-4 space-y-2">
-                            <a href="#" class="flex items-center px-4 py-2 text-white hover:bg-gray-700 rounded">
-                                <i class="bi bi-people-fill me-2"></i> Your Connections
-                            </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-white hover:bg-gray-700 rounded">
-                                <i class="bi bi-robot me-2"></i> Your Nexa (AI)
-                            </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-white hover:bg-gray-700 rounded">
-                                <i class="bi bi-star-fill me-2"></i> Your Stars
-                            </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-white hover:bg-gray-700 rounded">
-                                <i class="bi bi-file-earmark-code-fill me-2"></i> Your Gists
-                            </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-white hover:bg-gray-700 rounded">
-                                <i class="bi bi-building me-2"></i> Your Organizations
-                            </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-white hover:bg-gray-700 rounded">
-                                <i class="bi bi-briefcase-fill me-2"></i> Your Enterprises
-                            </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-white hover:bg-gray-700 rounded">
-                                <i class="bi bi-heart-fill me-2"></i> Your Sponsors
-                            </a>
-                            <hr class="border-gray-700 my-2" />
-                            <a href="#" class="flex items-center px-4 py-2 text-white hover:bg-gray-700 rounded">
-                                <i class="bi bi-gear-fill me-2"></i> Settings
-                            </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-white hover:bg-gray-700 rounded">
-                                <i class="bi bi-life-preserver me-2"></i> Support
-                            </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-white hover:bg-gray-700 rounded">
-                                <i class="bi bi-people me-2"></i> Groups
-                            </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-white hover:bg-gray-700 rounded">
-                                <i class="bi bi-people-fill me-2"></i> Community
-                            </a>
-                            <hr class="border-gray-700 my-2" />
-                            <a href="/logout" class="flex items-center px-4 py-2 text-white hover:bg-gray-700 rounded">
-                                <i class="bi bi-box-arrow-right me-2"></i> Sign Out
-                            </a>
-                        </nav>
-                    </div>
-                </div>
-            </div>
-            <button class="md:hidden text-white focus:outline-none">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
-            </button>
+    <nav class="navbar">
+        <a href="#" class="logo">
+            <i class="fas fa-code logo-icon"></i>
+            <span>CollabHub</span>
+        </a>
+        <div class="nav-links">
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#testimonials" class="nav-link">Testimonials</a>
+            <a href="#pricing" class="nav-link">Pricing</a>
+            <a href="#demo" class="nav-link">Demo</a>
+            <a href="#integrations" class="nav-link">Integrations</a>
+            <a href="#faq" class="nav-link">FAQ</a>
+            <a href="#support" class="nav-link">Support</a>
+        </div>
+        <div class="auth-buttons">
+            <button class="btn btn-secondary" onclick="location.href='/login'">Login</button>
+            <button class="btn btn-primary" onclick="location.href='/signup'">Sign Up</button>
         </div>
     </nav>
-    <!-- Profile Section -->
-    <section class="bg-gray-700 p-6 rounded-lg max-w-md mx-auto mt-8">
-        <h2 class="text-2xl font-bold mb-4">User Profile</h2>
-        <p class="mb-2"><strong>Name:</strong> {{name}}</p>
-        <!-- Add more user profile details here as needed -->
-    </section>
 
     <!-- Hero Section -->
-    <section class="py-20 px-4">
-        <div class="container mx-auto flex flex-col md:flex-row items-center">
-            <div class="md:w-1/2 mb-10 md:mb-0">
-                <h1 class="text-4xl md:text-5xl font-bold mb-6">
-                    <span class="text-orange-500">Distance doesn't matter,</span><br>
-                    it's the meeting
-                </h1>
-                <p class="text-gray-300 text-lg mb-8">Connect with professionals across the globe through Kegelson's unique platform.</p>
-                <div class="flex space-x-4">
-                    <a href="/signup" class="bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200">
-                        Get Started
-                    </a>
-                    <a href="#" class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded-lg transition duration-200">
-                        Learn More
-                    </a>
-                </div>
-            </div>
-            <div class="md:w-1/2 flex justify-center">
-                <!-- Your image with transparent background -->
-                <img src="/devs.png" alt="Kegelson illustration" class="max-w-md w-full h-auto">
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <h1>Your Ultimate Collaboration Platform</h1>
+            <p>Connect, communicate, and collaborate with your team in real-time. CollabHub brings together chat, video calls, file sharing, project management, and powerful integrations in one seamless platform.</p>
+            <div class="hero-btns">
+                <button class="btn btn-primary" onclick="location.href='/signup'">Get Started Free</button>
+                <button class="btn btn-secondary" onclick="location.href='#demo'">Watch Demo</button>
             </div>
         </div>
     </section>
 
     <!-- Features Section -->
-    <section class="py-16 px-4 bg-gray-800">
-        <div class="container mx-auto">
-            <h2 class="text-3xl font-bold text-center mb-12">Why Choose Kegelson</h2>
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Feature 1 -->
-                <div class="bg-gray-700 p-6 rounded-lg hover:bg-gray-600 transition">
-                    <div class="text-orange-500 mb-4 text-4xl font-bold">01</div>
-                    <h3 class="text-xl font-bold mb-3">Global Network</h3>
-                    <p class="text-gray-300">Connect with professionals worldwide regardless of distance.</p>
+    <section class="features" id="features">
+        <h2 class="section-title">Why Choose CollabHub?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-comments"></i>
                 </div>
-                
-                <!-- Feature 2 -->
-                <div class="bg-gray-700 p-6 rounded-lg hover:bg-gray-600 transition">
-                    <div class="text-orange-500 mb-4 text-4xl font-bold">02</div>
-                    <h3 class="text-xl font-bold mb-3">Smart Matching</h3>
-                    <p class="text-gray-300">Our algorithm finds the perfect professional matches for you.</p>
+                <h3 class="feature-title">Real-Time Chat</h3>
+                <p class="feature-desc">Instant messaging with markdown support, code blocks, message reactions, and threaded conversations for seamless communication.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-video"></i>
                 </div>
-                
-                <!-- Feature 3 -->
-                <div class="bg-gray-700 p-6 rounded-lg hover:bg-gray-600 transition">
-                    <div class="text-orange-500 mb-4 text-4xl font-bold">03</div>
-                    <h3 class="text-xl font-bold mb-3">Secure Platform</h3>
-                    <p class="text-gray-300">Enterprise-grade security for all your professional interactions.</p>
+                <h3 class="feature-title">Video Conferencing</h3>
+                <p class="feature-desc">High-quality video calls with screen sharing, virtual backgrounds, and breakout rooms for effective remote collaboration.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <h3 class="feature-title">Project Management</h3>
+                <p class="feature-desc">Integrated task boards, Kanban views, deadlines, and progress tracking to keep your team aligned and on schedule.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-file-code"></i>
+                </div>
+                <h3 class="feature-title">Code Collaboration</h3>
+                <p class="feature-desc">Real-time code editing with syntax highlighting, version control integration, and in-app terminal for developers.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="feature-title">Enterprise Security</h3>
+                <p class="feature-desc">End-to-end encryption, two-factor authentication, single sign-on, and granular permission controls for secure workflows.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-plug"></i>
+                </div>
+                <h3 class="feature-title">Integrations</h3>
+                <p class="feature-desc">Seamlessly connect with tools like GitHub, Trello, Google Drive, Slack, and Zapier to streamline your workflow.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3 class="feature-title">Mobile Apps</h3>
+                <p class="feature-desc">Stay connected on the go with native iOS and Android apps, featuring push notifications and offline support.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-analytics"></i>
+                </div>
+                <h3 class="feature-title">Analytics Dashboard</h3>
+                <p class="feature-desc">Gain insights with team activity reports, project progress metrics, and customizable analytics dashboards.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="testimonials">
+        <h2 class="section-title">What Our Users Say</h2>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <p class="testimonial-quote">"CollabHub transformed our team's workflow. The real-time collaboration tools are a game-changer!"</p>
+                <p class="testimonial-author">Sarah Johnson</p>
+                <p class="testimonial-role">Project Manager, TechTrend</p>
+            </div>
+            <div class="testimonial-card">
+                <p class="testimonial-quote">"The integration with our existing tools was seamless, and the security features give us peace of mind."</p>
+                <p class="testimonial-author">Michael Chen</p>
+                <p class="testimonial-role">CTO, Innovate Solutions</p>
+            </div>
+            <div class="testimonial-card">
+                <p class="testimonial-quote">"The mobile app keeps me connected with my team, no matter where I am. Highly recommend!"</p>
+                <p class="testimonial-author">Emily Davis</p>
+                <p class="testimonial-role">Freelance Developer</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+        <h2 class="section-title">Choose Your Plan</h2>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3 class="pricing-title">Free</h3>
+                <p class="pricing-price">$0/month</p>
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check"></i> Up to 10 users</li>
+                    <li><i class="fas fa-check"></i> Basic chat & video</li>
+                    <li><i class="fas fa-check"></i> 5GB storage</li>
+                    <li><i class="fas fa-check"></i> Community support</li>
+                </ul>
+                <button class="btn btn-primary" onclick="location.href='/signup'">Get Started</button>
+            </div>
+            <div class="pricing-card">
+                <h3 class="pricing-title">Pro</h3>
+                <p class="pricing-price">$15/month</p>
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check"></i> Up to 50 users</li>
+                    <li><i class="fas fa-check"></i> Advanced chat & video</li>
+                    <li><i class="fas fa-check"></i> 50GB storage</li>
+                    <li><i class="fas fa-check"></i> Priority support</li>
+                    <li><i class="fas fa-check"></i> Integrations</li>
+                </ul>
+                <button class="btn btn-primary" onclick="location.href='/signup'">Choose Pro</button>
+            </div>
+            <div class="pricing-card">
+                <h3 class="pricing-title">Enterprise</h3>
+                <p class="pricing-price">Contact Us</p>
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check"></i> Unlimited users</li>
+                    <li><i class="fas fa-check"></i> Full feature suite</li>
+                    <li><i class="fas fa-check"></i> Unlimited storage</li>
+                    <li><i class="fas fa-check"></i> Dedicated support</li>
+                    <li><i class="fas fa-check"></i> Custom integrations</li>
+                </ul>
+                <button class="btn btn-primary" onclick="location.href='/contact'">Contact Sales</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    
+
+    <!-- Integrations Section -->
+    <section class="integrations" id="integrations">
+        <h2 class="section-title">Seamless Integrations</h2>
+        <div class="integrations-grid">
+            <div class="integration-card">
+                <img src="https://i.pinimg.com/736x/53/6a/64/536a64414775457a68cf1fe93ec135d9.jpg" alt="GitHub" class="integration-logo">
+            </div>
+            <div class="integration-card">
+                <img src="https://i.pinimg.com/736x/f9/d4/cc/f9d4ccf1a06383bb5d1a58e21ab95ac0.jpg" alt="Trello" class="integration-logo">
+            </div>
+            <div class="integration-card">
+                <img src="https://i.pinimg.com/originals/31/93/ef/3193ef709f8735cb7e1d074ff6ee1d27.gif" alt="Slack" class="integration-logo">
+            </div>
+            <div class="integration-card">
+                <img src="https://i.pinimg.com/736x/f0/5e/56/f05e56cf503c48f77b23b73e2d712b9a.jpg" alt="Google Drive" class="integration-logo">
+            </div>
+            <div class="integration-card">
+                <img src="https://i.pinimg.com/736x/c6/9a/a7/c69aa783395efd6e66bd6ed78454af58.jpg" alt="Zapier" class="integration-logo">
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq" id="faq">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-question">
+                    What is CollabHub? <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    CollabHub is an all-in-one collaboration platform that integrates real-time chat, video conferencing, project management, and code collaboration tools to streamline team workflows.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    Is CollabHub secure? <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Yes, CollabHub uses end-to-end encryption, two-factor authentication, and advanced permission controls to ensure your data is secure.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    Can I try CollabHub for free? <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Absolutely! Our free plan supports up to 10 users and includes basic chat, video, and project management features.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    What integrations are available? <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    CollabHub integrates with tools like GitHub, Trello, Slack, Google Drive, Zapier, and many more to enhance your productivity.
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- CTA Section -->
+    <section class="cta" id="community">
+        <div class="demo-container">
+            <h2 class="section-title">Ready to Transform Your Collaboration?</h2>
+            <p style="color: var(--text-secondary); max-width: 700px; margin-bottom: 2rem;">
+                Join thousands of teams who are already working smarter with CollabHub. Get started in seconds—no credit card required.
+            </p>
+            <button class="btn btn-primary" style="padding: 1rem 3rem; font-size: 1.2rem;" onclick="location.href='/signup'">Get Started For Free</button>
+        </div>
+    </section>
+
     <!-- Footer -->
-    <footer class="bg-gray-900 py-8 px-4">
-        <div class="container mx-auto">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="mb-6 md:mb-0">
-                    <div class="text-2xl font-bold">
-                        <span class="text-orange-500">Kegel</span>son
-                    </div>
-                    <p class="text-gray-400 mt-2">Bridging professionals across distances</p>
-                </div>
-                <div class="flex space-x-6">
-                    <a href="#" class="text-gray-400 hover:text-orange-400">Terms</a>
-                    <a href="#" class="text-gray-400 hover:text-orange-400">Privacy</a>
-                    <a href="#" class="text-gray-400 hover:text-orange-400">Contact</a>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500">
-                &copy; 2025 Kegelson. All rights reserved.
-            </div>
+    <footer class="footer" id="support">
+        <div class="footer-links">
+            <a href="#" class="footer-link">Home</a>
+            <a href="#features" class="footer-link">Features</a>
+            <a href="#testimonials" class="footer-link">Testimonials</a>
+            <a href="#pricing" class="footer-link">Pricing</a>
+            <a href="#demo" class="footer-link">Demo</a>
+            <a href="#integrations" class="footer-link">Integrations</a>
+            <a href="#faq" class="footer-link">FAQ</a>
+            <a href="#" class="footer-link">Documentation</a>
+            <a href="#" class="footer-link">Blog</a>
+            <a href="#" class="footer-link">Careers</a>
+            <a href="#" class="footer-link">Contact</a>
+        </div>
+        <div class="social-links">
+            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-linkedin"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-discord"></i></a>
+        </div>
+        <div class="copyright">
+            © 2025 CollabHub. All rights reserved.
         </div>
     </footer>
+
     <script>
-        // Toggle profile sidebar
-        const profileBtn = document.getElementById('profileBtn');
-        const profileSidebar = document.getElementById('profileSidebar');
-        const closeSidebar = document.getElementById('closeSidebar');
-
-        profileBtn.addEventListener('click', () => {
-            profileSidebar.classList.remove('translate-x-full');
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
         });
 
-        closeSidebar.addEventListener('click', () => {
-            profileSidebar.classList.add('translate-x-full');
-        });
-
-        // Close sidebar when clicking outside
-        window.addEventListener('click', (e) => {
-            if (!profileSidebar.contains(e.target) && !profileBtn.contains(e.target)) {
-                profileSidebar.classList.add('translate-x-full');
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
             }
+        });
+
+        // FAQ accordion
+        document.querySelectorAll('.faq-question').forEach(item => {
+            item.addEventListener('click', () => {
+                const answer = item.nextElementSibling;
+                answer.classList.toggle('active');
+            });
+        });
+
+        // Lazy load images
+        const images = document.querySelectorAll('img');
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src || img.src;
+                    observer.unobserve(img);
+                }
+            });
+        });
+
+        images.forEach(img => {
+            observer.observe(img);
         });
     </script>
 </body>

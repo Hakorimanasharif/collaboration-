@@ -4,9 +4,15 @@ const path = require('path');
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require('socket.io');
-const io = new Server(server);
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:3002", // or your client origin
+        methods: ["GET", "POST"]
+    }
+});
 const hbs = require('hbs');
 const collection = require('./mongodb');
+const ChatMessage = require('../models/Message');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
@@ -57,7 +63,7 @@ const requireAuth = (req, res, next) => {
 const API_URL = process.env.API_URL || 'http://localhost:3000';
 
 app.get('/', (req, res) => {
-    res.render('login');
+    res.render('home');
 });
 
 app.get('/login', (req, res) => {
@@ -158,18 +164,20 @@ io.on('connection', (socket) => {
 
     // When a message is sent
     socket.on('chat message', async (msg) => {
+        console.log('Received message:', msg); // Debug log
         try {
-            // Store message in database
-            await collection.updateOne(
-                { name: msg.sender },
-                { $push: { messages: msg } },
-                { upsert: true }
-            );
+            if (!msg.type) msg.type = 'text';
             
-            // Broadcast message to all clients
+            console.log('Creating chat message...'); // Debug log
+            const chatMessage = new ChatMessage(msg);
+            await chatMessage.save();
+            console.log('Message saved:', chatMessage); // Debug log
+            
             io.emit('chat message', msg);
+            console.log('Message broadcasted'); // Debug log
         } catch (error) {
             console.error('Error saving message:', error);
+            socket.emit('error', { message: 'Failed to send message' });
         }
     });
 
@@ -185,6 +193,25 @@ io.on('connection', (socket) => {
         }
         console.log('user disconnected');
     });
+
+    socket.on('error', (error) => {
+        console.error('Socket error:', error);
+        socket.emit('error', { message: error.message || 'An error occurred' });
+    });
+});
+
+// API endpoint to get recent chat messages
+app.get('/api/chat/messages', async (req, res) => {
+    try {
+        const messages = await ChatMessage.find({})
+            .sort({ timestamp: 1 })
+            .limit(100)
+            .lean();
+        res.json(messages);
+    } catch (error) {
+        console.error('Error fetching chat messages:', error);
+        res.status(500).json({ error: 'Failed to fetch chat messages' });
+    }
 });
 
 app.get('/chat', requireAuth, async (req, res) => {
@@ -203,6 +230,9 @@ app.get('/chat', requireAuth, async (req, res) => {
                 name: user.name,
                 status: onlineUsernames.has(user.name) ? 'online' : 'offline',
                 lastSeen: user.lastSeen.toLocaleString()
+            })),
+            allUsers: users.map(user => ({
+                name: user.name
             }))
         });
     } catch (error) {
@@ -225,6 +255,42 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
 app.use('/uploads', express.static('uploads'));
 
-server.listen(3000, () => {
-    console.log('Server is running on http://localhost:3000');
+const PORT = process.env.PORT || 3004;
+
+server.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
+
+// New route to handle creating posts
+app.post('/api/posts', upload.single('image'), async (req, res) => {
+    try {
+        const { content, author } = req.body;
+        const imageUrl = req.file ? '/uploads/' + req.file.filename : null;
+
+        const newPost = new ChatMessage({
+            content,
+            author,
+            imageUrl,
+            timestamp: new Date()
+        });
+
+        await newPost.save();
+        res.status(201).json(newPost);
+    } catch (error) {
+        console.error('Error creating post:', error);
+        res.status(500).json({ error: 'Failed to create post' });
+    }
+});
+
+// New route to fetch posts
+app.get('/api/posts', async (req, res) => {
+    try {
+        const posts = await ChatMessage.find({})
+            .sort({ timestamp: -1 })
+            .lean();
+        res.json(posts);
+    } catch (error) {
+        console.error('Error fetching posts:', error);
+        res.status(500).json({ error: 'Failed to fetch posts' });
+    }
 });
