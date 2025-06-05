@@ -12,7 +12,7 @@ const io = new Server(server, {
 });
 const hbs = require('hbs');
 const collection = require('./mongodb');
-const ChatMessage = require('../models/Message');
+const ChatMessage = require('./chatMessage');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
@@ -34,6 +34,7 @@ app.use(session({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(express.static(path.join(__dirname, '../images')));
 app.use(express.static(path.join(__dirname, '../public')));
 app.set('view engine', 'hbs');
@@ -54,7 +55,7 @@ hbs.registerHelper('eq', function(a, b) {
 // Middleware to check if user is authenticated
 const requireAuth = (req, res, next) => {
     if (!req.session.user) {
-        return res.redirect('/login');
+        return res.redirect('/');
     }
     next();
 };
@@ -63,14 +64,23 @@ const requireAuth = (req, res, next) => {
 const API_URL = process.env.API_URL || 'http://localhost:3000';
 
 app.get('/', (req, res) => {
+    if (req.session.user) {
+        return res.redirect('/chat');
+    }
     res.render('home');
 });
 
 app.get('/login', (req, res) => {
+    if (req.session.user) {
+        return res.redirect('/chat');
+    }
     res.render('login');
 });
 
 app.get('/signup', (req, res) => {
+    if (req.session.user) {
+        return res.redirect('/chat');
+    }
     res.render('signup');
 });
 
