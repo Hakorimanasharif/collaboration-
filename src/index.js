@@ -12,6 +12,7 @@ const io = new Server(server, {
 });
 const hbs = require('hbs');
 const collection = require('./mongodb');
+const Message = require('../models/Message');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
@@ -182,7 +183,7 @@ io.on('connection', (socket) => {
             if (!msg.type) msg.type = 'text';
             
             console.log('Creating chat message...'); // Debug log
-            const chatMessage = new ChatMessage(msg);
+            const chatMessage = new Message(msg);
             await chatMessage.save();
             console.log('Message saved:', chatMessage); // Debug log
             
@@ -216,7 +217,7 @@ io.on('connection', (socket) => {
 // API endpoint to get recent chat messages
 app.get('/api/chat/messages', async (req, res) => {
     try {
-        const messages = await ChatMessage.find({})
+        const messages = await Message.find({})
             .sort({ timestamp: 1 })
             .limit(100)
             .lean();
@@ -280,7 +281,7 @@ app.post('/api/posts', upload.single('image'), async (req, res) => {
         const { content, author } = req.body;
         const imageUrl = req.file ? '/uploads/' + req.file.filename : null;
 
-        const newPost = new ChatMessage({
+        const newPost = new Message({
             content,
             author,
             imageUrl,
@@ -298,7 +299,7 @@ app.post('/api/posts', upload.single('image'), async (req, res) => {
 // New route to fetch posts
 app.get('/api/posts', async (req, res) => {
     try {
-        const posts = await ChatMessage.find({})
+        const posts = await Message.find({})
             .sort({ timestamp: -1 })
             .lean();
         res.json(posts);

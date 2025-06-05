@@ -1,5 +1,5 @@
 const currentUser = "{{currentUser}}";
-const socket = io();
+const socket = io("http://localhost:3002");
 
 // DOM Elements
 const messagesDiv = document.getElementById('messages');
