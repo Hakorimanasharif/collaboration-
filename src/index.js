@@ -63,10 +63,14 @@ const requireAuth = (req, res, next) => {
 const API_URL = process.env.API_URL || 'http://localhost:3000';
 
 app.get('/', (req, res) => {
-    if (req.session.user) {
-        return res.redirect('/chat');
-    }
-    res.render('home');
+    console.log('Root route accessed, session user:', req.session.user);
+    // For testing: clear session to force showing home page
+    req.session.destroy(err => {
+        if (err) {
+            console.error('Error destroying session:', err);
+        }
+        res.render('home');
+    });
 });
 
 app.get('/login', (req, res) => {
@@ -264,7 +268,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
 app.use('/uploads', express.static('uploads'));
 
-const PORT = process.env.PORT || 3004;
+const PORT = process.env.PORT || 3002;
 
 server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
