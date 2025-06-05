@@ -52,6 +52,12 @@ hbs.registerHelper('eq', function(a, b) {
     return a === b;
 });
 
+hbs.registerHelper('formatTimestamp', function(timestamp) {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleString();
+});
+
 // Middleware to check if user is authenticated
 const requireAuth = (req, res, next) => {
     if (!req.session.user) {
@@ -276,7 +282,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
 app.use('/uploads', express.static('uploads'));
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3003;
 
 server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

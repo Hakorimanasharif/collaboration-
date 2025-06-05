@@ -1,5 +1,5 @@
 const currentUser = "{{currentUser}}";
-const socket = io("http://localhost:3002");
+const socket = io("http://localhost:3003");
 
 // DOM Elements
 const messagesDiv = document.getElementById('messages');
@@ -309,7 +309,7 @@ fileInput.addEventListener('change', () => {
     const formData = new FormData();
     formData.append('file', file);
 
-    fetch('/upload-file', {
+    fetch('/upload', {
         method: 'POST',
         body: formData
     })
