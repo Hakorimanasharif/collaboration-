@@ -12,7 +12,6 @@ const io = new Server(server, {
 });
 const hbs = require('hbs');
 const collection = require('./mongodb');
-const ChatMessage = require('./chatMessage');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
